@@ -1,0 +1,5 @@
+# Touchscreen
+on post-fs-data
+    mkdir /data/vendor/touch 0770 system system
+    mkdir /data/vendor/touch_state 0770 system system
+    mkdir /mnt/vendor/persist/touch 0770 system system

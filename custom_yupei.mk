@@ -1,0 +1,38 @@
+#
+# SPDX-FileCopyrightText: The LineageOS Project
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Inherit from those products. Most specific first.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base.mk)
+
+# Inherit some common PixelOS stuff.
+$(call inherit-product, vendor/custom/config/common_full_tablet_wifionly.mk)
+
+# Inherit from yupei device
+$(call inherit-product, device/xiaomi/yupei/device.mk)
+
+PRODUCT_NAME := custom_yupei
+PRODUCT_DEVICE := yupei
+PRODUCT_MANUFACTURER := Xiaomi
+PRODUCT_BRAND := Xiaomi
+PRODUCT_MODEL := Xiaomi Pad 8
+
+PRODUCT_SYSTEM_NAME := yupei_global
+PRODUCT_SYSTEM_DEVICE := yupei
+
+PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
+
+# Display
+TARGET_SCREEN_WIDTH := 2136
+TARGET_SCREEN_HEIGHT := 3200
+
+# Telephony
+TARGET_CALL_RECORDING_SUPPORTED := false
+
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    BuildDesc="yupei_global-user 15 AQ3A.250226.002 OS3.0.305.0.WPZMIXM release-keys" \
+    BuildFingerprint=Xiaomi/yupei_global/yupei:15/AQ3A.250226.002/OS3.0.305.0.WPZMIXM:user/release-keys \
+    DeviceName=$(PRODUCT_SYSTEM_DEVICE) \
+    DeviceProduct=$(PRODUCT_SYSTEM_NAME)

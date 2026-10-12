@@ -3,33 +3,42 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-
 soong_namespace {
 }
 
+// Shims
+cc_library_shared {
+    name: "libfdtrack_yupei_shim",
+    vendor: true,
+    srcs: ["shims/fdtrack.cpp"],
+    shared_libs: ["libdl"],
+}
+
+// WiFi
 install_symlink {
-    name: "firmware_wlanmdsp.otaupdate_symlink",
+    name: "firmware_yupei_wlanmdsp_symlink",
     vendor: true,
     installed_location: "firmware/wlanmdsp.otaupdate",
     symlink_target: "/data/vendor/firmware/wlanmdsp.mbn",
 }
 
 install_symlink {
-    name: "firmware_wlan_mac.bin_symlink",
+    name: "firmware_yupei_wlan_mac_symlink",
     vendor: true,
     installed_location: "firmware/wlan/qca_cld/wcn7750/wlan_mac.bin",
     symlink_target: "/mnt/vendor/persist/wlan/wlan_mac.bin",
 }
 
 install_symlink {
-    name: "firmware_WCNSS_qcom_cfg.ini_symlink",
+    name: "firmware_yupei_wifi_cfg_symlink",
     vendor: true,
     installed_location: "firmware/wlan/qca_cld/wcn7750/WCNSS_qcom_cfg.ini",
     symlink_target: "/vendor/etc/wifi/wcn7750/WCNSS_qcom_cfg.ini",
 }
 
+// Firmware
 mkdir {
-    name: "vendor_modem_firmware_mountpoint",
+    name: "vendor_yupei_modem_firmware_mountpoint",
     dir: "modem_firmware",
     vendor: true,
 }

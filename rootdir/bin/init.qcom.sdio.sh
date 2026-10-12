@@ -33,7 +33,7 @@
 # SDIO slot on the MSM target (e.g. slot 3 on 7x30 surf).
 
 arg=$1
-target=`getprop ro.board.platform`
+target=$(getprop ro.board.platform)
 
 case "$target" in
     "msm7627_6x")

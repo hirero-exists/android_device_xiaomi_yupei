@@ -1,232 +1,828 @@
 #!/usr/bin/env -S PYTHONPATH=../../../tools/extract-utils python3
 #
-# SPDX-FileCopyrightText: 2026 The LineageOS Project
+# SPDX-FileCopyrightText: The LineageOS Project
 # SPDX-License-Identifier: Apache-2.0
 #
-import zipfile
-from pathlib import Path
 
-from extract_utils.fixups_blob import (
-    BlobFixupCtx,
-    File,
-    blob_fixup,
-    blob_fixups_user_type,
-)
-from extract_utils.fixups_lib import (
-    lib_fixup_remove,
-    lib_fixups,
-    lib_fixups_user_type,
-)
-from extract_utils.main import (
-    ExtractUtils,
-    ExtractUtilsModule,
-)
+from extract_utils.fixups_blob import blob_fixup
+from extract_utils.fixups_lib import lib_fixups
+from extract_utils.main import ExtractUtils, ExtractUtilsModule
 
 namespace_imports = [
+    'device/xiaomi/yupei',
     'hardware/qcom-caf/sm8750',
     'hardware/qcom-caf/wlan',
+    'hardware/qcom-caf/wlan/qcwcn',
     'hardware/qcom-caf/common/libqti-perfd-client',
     'vendor/qcom/opensource/commonsys/display',
     'vendor/qcom/opensource/commonsys-intf/display',
     'vendor/qcom/opensource/dataservices',
     'vendor/qcom/opensource/display',
-    'device/lenovo/malbec',
 ]
 
-
-def lib_fixup_vendor_suffix(lib: str, partition: str, *args, **kwargs):
-    return f'{lib}_{partition}' if partition == 'vendor' else None
-
-
-lib_fixups: lib_fixups_user_type = {
-    **lib_fixups,
+partition_library_suffixes = {
+    'vendor': (
+        'com.qualcomm.qti.dpm.api@1.0',
+        'com.qualcomm.qti.imscmservice@2.0',
+        'com.qualcomm.qti.imscmservice@2.1',
+        'com.qualcomm.qti.imscmservice@2.2',
+        'com.qualcomm.qti.uceservice@2.0',
+        'com.qualcomm.qti.uceservice@2.1',
+        'com.qualcomm.qti.uceservice@2.2',
+        'com.qualcomm.qti.uceservice@2.3',
+        'libdolbyproxyandroid',
+        'vendor.display.color@1.0',
+        'vendor.display.color@1.1',
+        'vendor.display.color@1.2',
+        'vendor.display.color@1.3',
+        'vendor.display.postproc@1.0',
+        'vendor.qti.data.mwqem@1.0',
+        'vendor.qti.data.slm@1.0',
+        'vendor.qti.diaghal-V1-ndk',
+        'vendor.qti.diaghal@1.0',
+        'vendor.qti.hardware.data.connection@1.0',
+        'vendor.qti.hardware.data.connection@1.1',
+        'vendor.qti.hardware.data.connectionaidl-V1-ndk',
+        'vendor.qti.hardware.data.connectionfactory-V1-ndk',
+        'vendor.qti.hardware.data.dataactivity-V1-ndk',
+        'vendor.qti.hardware.data.dynamicdds@1.0',
+        'vendor.qti.hardware.data.dynamicdds@1.1',
+        'vendor.qti.hardware.data.flow@1.0',
+        'vendor.qti.hardware.data.flow@1.1',
+        'vendor.qti.hardware.data.ka-V1-ndk',
+        'vendor.qti.hardware.data.latency@1.0',
+        'vendor.qti.hardware.data.lce@1.0',
+        'vendor.qti.hardware.dpmaidlservice-V1-ndk',
+        'vendor.qti.hardware.embmsslaidl-V2-ndk',
+        'vendor.qti.hardware.fingerprint@1.0',
+        'vendor.qti.hardware.fm-V1-ndk',
+        'vendor.qti.hardware.fm@1.0',
+        'vendor.qti.hardware.iop@2.0',
+        'vendor.qti.hardware.qdutils_disp@1.0',
+        'vendor.qti.hardware.qseecom-V1-ndk',
+        'vendor.qti.hardware.qseecom@1.0',
+        'vendor.qti.hardware.qteeconnector@1.0',
+        'vendor.qti.hardware.radio.am@1.0',
+        'vendor.qti.hardware.radio.ims@1.0',
+        'vendor.qti.hardware.radio.ims@1.1',
+        'vendor.qti.hardware.radio.ims@1.2',
+        'vendor.qti.hardware.radio.ims@1.3',
+        'vendor.qti.hardware.radio.ims@1.4',
+        'vendor.qti.hardware.radio.ims@1.5',
+        'vendor.qti.hardware.radio.ims@1.6',
+        'vendor.qti.hardware.radio.ims@1.7',
+        'vendor.qti.hardware.radio.ims@1.8',
+        'vendor.qti.hardware.radio.lpa@1.0',
+        'vendor.qti.hardware.radio.lpa@1.1',
+        'vendor.qti.hardware.radio.lpa@1.2',
+        'vendor.qti.hardware.radio.qcrilhook@1.0',
+        'vendor.qti.hardware.radio.qtiradio@1.0',
+        'vendor.qti.hardware.radio.qtiradio@2.0',
+        'vendor.qti.hardware.radio.qtiradio@2.1',
+        'vendor.qti.hardware.radio.qtiradio@2.2',
+        'vendor.qti.hardware.radio.qtiradio@2.3',
+        'vendor.qti.hardware.radio.qtiradio@2.4',
+        'vendor.qti.hardware.radio.qtiradio@2.5',
+        'vendor.qti.hardware.radio.qtiradio@2.6',
+        'vendor.qti.hardware.radio.uim@1.0',
+        'vendor.qti.hardware.radio.uim@1.1',
+        'vendor.qti.hardware.radio.uim@1.2',
+        'vendor.qti.hardware.radio.uim_remote_client@1.0',
+        'vendor.qti.hardware.radio.uim_remote_client@1.1',
+        'vendor.qti.hardware.radio.uim_remote_client@1.2',
+        'vendor.qti.hardware.radio.uim_remote_server@1.0',
+        'vendor.qti.hardware.trustedui-V1-ndk',
+        'vendor.qti.hardware.trustedui@1.0',
+        'vendor.qti.hardware.vpp-V1-ndk',
+        'vendor.qti.hardware.vpp@1.1',
+        'vendor.qti.hardware.wigig.netperftuner@1.0',
+        'vendor.qti.ims.callcapability@1.0',
+        'vendor.qti.ims.callinfo@1.0',
+        'vendor.qti.ims.rcsconfig@1.0',
+        'vendor.qti.ims.rcsconfig@1.1',
+        'vendor.qti.ims.rcsconfig@2.0',
+        'vendor.qti.ims.rcsconfig@2.1',
+        'vendor.qti.latency@2.0',
+        'vendor.qti.latency@2.1',
+        'vendor.qti.latency@2.2',
+        'vendor.qti.qccvndhal_aidl-V1-ndk',
+        'vendor.qti.qesdhal@1.0',
+        'vendor.qti.qesdhal@1.1',
+        'vendor.qti.qesdhal@1.2',
+        'vendor.qti.qesdhalaidl-V2-ndk',
+        'vendor.qti.qspmhal-V1-ndk',
+        'vendor.xiaomi.hardware.displayfeature@1.0_yupei',
+        'vendor.xiaomi.hardware.fingerprintextension-V1-ndk',
+        'vendor.xiaomi.hw.touchfeature-V1-ndk',
+    ),
 }
 
 
-def fix_graphic_buffer_size(ctx: BlobFixupCtx, file: File, file_path: str,
-                           signatures, *args, **kwargs):
-    path = Path(file_path)
-    data = path.read_bytes()
-    for signature in signatures:
-        original = bytes.fromhex(signature)
-        replacement = bytes.fromhex('00a68152') + original[4:]
-        if data.count(original) == 1 and data.count(replacement) == 0:
-            data = data.replace(original, replacement, 1)
-        elif data.count(original) != 0 or data.count(replacement) != 1:
-            raise ValueError(f'{file_path}: unrecognized GraphicBuffer allocation')
-    path.write_bytes(data)
+def lib_fixup_partition_suffix(lib, partition, *args, **kwargs):
+    if lib in partition_library_suffixes.get(partition, ()):
+        return f'{lib}-{partition}'
+    return None
 
 
-def fix_zui_notes(ctx: BlobFixupCtx, file: File, file_path: str, *args, **kwargs):
-    with zipfile.ZipFile(file_path, 'r') as zin:
-        items = []
-        for info in zin.infolist():
-            data = zin.read(info.filename)
-            if info.filename == 'AndroidManifest.xml':
-                data = data.replace(
-                    b'\x08\x00\x00\x10\x23\x00\x00\x00',
-                    b'\x08\x00\x00\x10\x21\x00\x00\x00',
-                )
-            items.append((info, data))
+lib_fixups = {
+    **lib_fixups,
+    tuple({lib for libs in partition_library_suffixes.values() for lib in libs}): lib_fixup_partition_suffix,
+}
 
-    with zipfile.ZipFile(file_path, 'w') as zout:
-        for info, data in items:
-            zout.writestr(info, data)
-
-
-blob_fixups: blob_fixups_user_type = {
+private_library_fixups = [
     (
-        'system/usr/keylayout/Vendor_17ef_Product_612b.kl',
-        'system/usr/keylayout/Vendor_17ef_Product_617f.kl',
-        'system/usr/keylayout/Vendor_17ef_Product_61a1.kl',
-        'system/usr/keylayout/Vendor_17ef_Product_622e.kl',
-    ): blob_fixup()
-        .regex_replace(r'PEN_ONE_CLICK', 'STYLUS_BUTTON_PRIMARY')
-        .regex_replace(r'PEN_TWO_CLICK', 'STYLUS_BUTTON_SECONDARY')
-        .regex_replace(r'PEN_THREE_CLICK|PEN_360_THREE_CLICK|PEN_SWING', 'STYLUS_BUTTON_TERTIARY')
-        .regex_replace(r'PEN_LONG_CLICK|PEN_D_LONG_PRESS|PEN_TAIL_PRESSED|PEN_TAIL_RELEASED', 'STYLUS_BUTTON_TAIL')
-        .regex_replace(r'PEN_PRESS_CLICK|PEN_D_CLICK|PEN_SQUEEZE_ONE|PEN_SQUEEZE_PRESSED|PEN_SQUEEZE_ENTER|PEN_SQUEEZE_EXIT', 'STYLUS_BUTTON_PRIMARY')
-        .regex_replace(r'PEN_SQUEEZE_TWO|PEN_UL_SQUEEZE_ENTER|PEN_UL_SQUEEZE_EXIT', 'STYLUS_BUTTON_SECONDARY')
-        .regex_replace(r'PEN_D_SLIDE_DOWN', 'VOLUME_DOWN')
-        .regex_replace(r'PEN_D_SLIDE_UP', 'VOLUME_UP')
-        .regex_replace(r'PEN_BT_DISCONNECT', 'UNKNOWN'),
-
-    'vendor/etc/perf/perfconfigstore.xml': blob_fixup()
-        .regex_replace(
-            r'<Prop Name="vendor\.debug\.enable\.memperfd"\s+Value="true" />',
-            '<Prop Name="vendor.debug.enable.memperfd"         Value="false" />',
+        (
+            'system_ext/lib64/libmiracastsystem.so',
+        ),
+        'libmdnssd.so',
+        'libmdnssd_yupei.so',
     ),
-
-    # --- graphics.allocator V1 -> V2 (camera stack, adapted from onyx sibling) ---
     (
-        'vendor/lib64/camera/components/com.qti.node.dewarp.so',
-        'vendor/lib64/hw/com.qti.chi.override.so',
-        'vendor/lib64/libcamximageformatutils.so',
-        'vendor/lib64/libchifeature2.so',
-        'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-service-impl.so',
-    ): blob_fixup()
-        .replace_needed(
-            'android.hardware.graphics.allocator-V1-ndk.so',
-            'android.hardware.graphics.allocator-V2-ndk.so',
-    ),
-
-    'vendor/lib64/libgpu_tonemapper.so': blob_fixup()
-        .call(fix_graphic_buffer_size, (
-            '00208052b6e5f7f217d5e0f23a01881aff4300f901060094',
-        )),
-
-    'vendor/lib64/libqvrservice.so': blob_fixup()
-        .call(fix_graphic_buffer_size, (
-            '002080526f100094c8078052611a40b9e5c3009168230039',
-            '00208052d60f009448028052a9f6fff0290d1a91e8430039',
-            '002080525509009469208552aaf6ffb04a0d1a91618a4729',
-            '00208052e81640f9f403012aa8831ff87c08009448028052',
-        ))
-        .replace_needed(
-            'android.hardware.graphics.allocator-V1-ndk.so',
-            'android.hardware.graphics.allocator-V2-ndk.so',
+        (
+            'system_ext/lib64/libmiracastsystem.so',
         ),
-
-    'vendor/lib64/libxrcommnetworkservice.so': blob_fixup()
-        .call(fix_graphic_buffer_size, (
-            '002080523331009448028052810e41b9e5630091e8630039',
-        )),
-
-    # --- sensors V2 -> V3 (blobs built against old sensors AIDL) ---
+        'android.media.audio.common.types-V2-cpp.so',
+        'android.media.audio.common.types-V2-cpp_yupei.so',
+    ),
     (
-        'vendor/lib64/hw/camera.qcom.so',
-        'vendor/lib64/libgnss.so',
-    ): blob_fixup()
-        .replace_needed(
-            'android.hardware.sensors-V2-ndk.so',
-            'android.hardware.sensors-V3-ndk.so',
+        (
+            'odm/bin/hw/vendor.xiaomi.sensor.citsensorservice.aidl',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.anchor.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlineawbideal.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlineb2y.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlineformatconvertor.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinehdrraw2y.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlineheic.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinei2y.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinejpeg.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinemfnr.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinemlawb.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinetintless.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlinetintlesshdr.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlineyuvreprocess.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.offlineyuvsplit.so',
+            'odm/lib64/hw/displayfeature.default.so',
+            'odm/lib64/libmiXmlParser.so',
+            'vendor/bin/hw/audiohalservice.qti',
+            'vendor/bin/hw/vendor.qti.camera.provider-service_64',
+            'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
+            'vendor/bin/hw/vendor.xiaomi.hardware.miperf2-service',
+            'vendor/bin/poweropt-service',
+            'vendor/lib64/hw/libaudioeffecthal.qti.so',
+            'vendor/lib64/libaodoptfeature.so',
+            'vendor/lib64/libapengine.so',
+            'vendor/lib64/libaudiocloudctrl.so',
+            'vendor/lib64/libcamerapoweroptfeature.so',
+            'vendor/lib64/libcamxcoreutils.so',
+            'vendor/lib64/libcamxods.so',
+            'vendor/lib64/libgamepoweroptfeature.so',
+            'vendor/lib64/liblearningmodule.so',
+            'vendor/lib64/libmicamera_aidl_provider.so',
+            'vendor/lib64/libmicamera_hal_core.so',
+            'vendor/lib64/liboffscreenpoweroptfeature.so',
+            'vendor/lib64/libpowercallback.so',
+            'vendor/lib64/libpowercore.so',
+            'vendor/lib64/libpsmoptfeature.so',
+            'vendor/lib64/libsdmclient.so',
+            'vendor/lib64/libsimulation.so',
+            'vendor/lib64/libstandbyfeature.so',
+            'vendor/lib64/libvideooptfeature.so',
+            'vendor/lib64/soundfx/libquasar.so',
+        ),
+        'libtinyxml2.so',
+        'libtinyxmlQ.so',
     ),
-
-    # --- libtinyxml2 -> libtinyxml2-v34 (platform ships the -v34 soname) ---
     (
-        'vendor/bin/hw/vendor.qti.camera.provider-service_64',
-        'vendor/bin/poweropt-service',
-        'vendor/lib64/libcamxcoreutils.so',
-        'vendor/lib64/libcamxods.so',
-    ): blob_fixup()
-        .replace_needed(
-            'libtinyxml2.so',
-            'libtinyxml2-v34.so',
+        (
+            'vendor/bin/hw/vendor.qti.hardware.display.allocator-service',
+            'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
+            'vendor/bin/hw/vendor.qti.hardware.secureprocessor',
+            'vendor/lib64/camera/components/com.qti.node.dewarp.so',
+            'vendor/lib64/egl/eglSubDriverAndroid.so',
+            'vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so',
+            'vendor/lib64/hw/com.qti.chi.override.so',
+            'vendor/lib64/libCB.so',
+            'vendor/lib64/libcamximageformatutils.so',
+            'vendor/lib64/libchifeature2.so',
+            'vendor/lib64/libgralloccore.so',
+            'vendor/lib64/libgrallocutils.so',
+            'vendor/lib64/libqcodec2_utils.so',
+            'vendor/lib64/libqvrservice.so',
+            'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-service-impl.so',
+        ),
+        'libgralloc.qti.so',
+        'libgralloc.qti_yupei.so',
     ),
-
     (
-        'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
-        'vendor/lib64/libsdmclient.so',
+        (
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.gainmap.so',
+            'odm/lib64/camera/plugins/com.xiaomi.plugin.jpegrAggr.so',
+        ),
+        'libultrahdr.so',
+        'libultrahdr_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libultrahdr_yupei.so',
+        ),
+        'libjpegencoder.so',
+        'libjpegencoder_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libultrahdr_yupei.so',
+        ),
+        'libjpegdecoder.so',
+        'libjpegdecoder_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libVoiceSdk.so',
+            'vendor/lib64/libcapiv2uvvendor.so',
+            'vendor/lib64/liblistensoundmodel2vendor.so',
+        ),
+        'libtensorflowlite_c.so',
+        'libtensorflowlite_c_yupei.so',
+    ),
+    (
+        (
+            'odm/bin/vendor.xiaomi.hardware.mitrustedui-service',
+            'vendor/bin/trusteduilistener',
+        ),
+        'vendor.qti.hardware.systemhelperaidl-V1-ndk.so',
+        'vendor.qti.hardware.systemhelperaidl-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.xiaomi.hardware.videoservice-service',
+            'vendor/lib64/libcodecclientmanager.so',
+        ),
+        'libgui.so',
+        'libgui_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hal_proxy_daemon',
+            'vendor/bin/sigma_dut',
+        ),
+        'libwifi-hal-qcom.so',
+        'libwifi-hal-qcom_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libwifi-hal-qcom_yupei.so',
+        ),
+        'libpasn.so',
+        'libpasn_yupei.so',
+    ),
+    (
+        (
+            'system_ext/lib64/vendor.qti.hardware.qccsyshal@1.2-halimpl.so',
+        ),
+        'libprotobuf-cpp-full.so',
+        'libprotobuf-cpp-full_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
+            'vendor/lib64/libdfintf.so',
+            'vendor/lib64/libsdmclient.so',
+            'vendor/lib64/libsdmcore.so',
+            'vendor/lib64/libsdmdal.so',
+        ),
+        'vendor.xiaomi.hardware.displayfeature@1.0.so',
+        'vendor.xiaomi.hardware.displayfeature@1.0_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+        ),
+        'android.hardware.bluetooth.audio-impl.so',
+        'android.hardware.bluetooth.audio-impl_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.bluetooth.audio-impl_yupei.so',
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+        ),
+        'libbluetooth_audio_session_aidl.so',
+        'libbluetooth_audio_session_aidl_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+            'vendor/lib64/libswspatializeraidl_ext.so',
+            'vendor/lib64/soundfx/libbundleaidl.so',
+            'vendor/lib64/soundfx/libdlbvolaidl.so',
+            'vendor/lib64/soundfx/libhwdapaidl.so',
+            'vendor/lib64/soundfx/liblvacfsprocessingaidl.so',
+            'vendor/lib64/soundfx/libmiwndnsprocessingaidl.so',
+            'vendor/lib64/soundfx/libozoaidl.so',
+            'vendor/lib64/soundfx/libspatializeraidl.so',
+            'vendor/lib64/soundfx/libswgamedapaidl.so',
+            'vendor/lib64/soundfx/libswspatializeraidl.so',
+        ),
+        'libaudio_aidl_conversion_common_ndk.so',
+        'libaudio_aidl_conversion_common_ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.audio.common-V3-ndk_yupei.so',
+            'vendor/lib64/android.hardware.audio.core-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.audio.core.sounddose-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.audio.effect-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.audio.effect-V3-ndk_yupei.so',
+            'vendor/lib64/hw/android.hardware.bluetooth.audio_sw.so',
+            'vendor/lib64/libaudio_aidl_conversion_common_ndk_yupei.so',
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+            'vendor/lib64/soundfx/libbundleaidl.so',
+            'vendor/lib64/soundfx/libdownmixaidl.so',
+            'vendor/lib64/soundfx/libdynamicsprocessingaidl.so',
+            'vendor/lib64/soundfx/libhwdapaidl.so',
+            'vendor/lib64/soundfx/libloudnessenhanceraidl.so',
+            'vendor/lib64/soundfx/liblvacfsprocessingaidl.so',
+            'vendor/lib64/soundfx/libmiwndnsprocessingaidl.so',
+            'vendor/lib64/soundfx/libozoaidl.so',
+            'vendor/lib64/soundfx/libreverbaidl.so',
+            'vendor/lib64/soundfx/libvisualizeraidl.so',
+        ),
+        'android.media.audio.common.types-V6-ndk.so',
+        'android.media.audio.common.types-V6-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/hw/libaudiocorehal.default.so',
+            'vendor/lib64/hw/libaudiocorehal.qti.so',
+            'vendor/lib64/libaudioplatformconverter.qti.so',
+            'vendor/lib64/libqtigefar.so',
+            'vendor/lib64/libqvrservice.so',
+            'vendor/lib64/libsxrservice.so',
+            'vendor/lib64/soundfx/libqcompostprocbundle.so',
+            'vendor/lib64/soundfx/libqcomvisualizer.so',
+            'vendor/lib64/soundfx/libqcomvoiceprocessing.so',
+            'vendor/lib64/soundfx/libquasar.so',
+            'vendor/lib64/soundfx/libspatializeraidl.so',
+            'vendor/lib64/soundfx/libvolumelistener.so',
+        ),
+        'android.media.audio.common.types-V3-ndk.so',
+        'android.media.audio.common.types-V3-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.audio.core-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.audio.effect-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.audio.effect-V3-ndk_yupei.so',
+            'vendor/lib64/android.hardware.bluetooth.audio-V4-ndk_yupei.so',
+            'vendor/lib64/libaudio_aidl_conversion_common_ndk_yupei.so',
+        ),
+        'android.hardware.audio.common-V3-ndk.so',
+        'android.hardware.audio.common-V3-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/hw/android.hardware.bluetooth.audio_sw.so',
+            'vendor/lib64/hw/libaudiocorehal.default.so',
+            'vendor/lib64/hw/libaudiocorehal.qti.so',
+            'vendor/lib64/libaudioplatformconverter.qti.so',
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+            'vendor/lib64/libqtigefar.so',
+            'vendor/lib64/libqvrservice.so',
+            'vendor/lib64/libsxrservice.so',
+            'vendor/lib64/libwfdmmsrc_proprietary.so',
+            'vendor/lib64/soundfx/libspatializeraidl.so',
+        ),
+        'android.hardware.audio.core-V2-ndk.so',
+        'android.hardware.audio.core-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.audio.core-V2-ndk_yupei.so',
+            'vendor/lib64/hw/libaudiocorehal.qti.so',
+            'vendor/lib64/hw/libaudioeffecthal.qti.so',
+            'vendor/lib64/libswspatializeraidl_ext.so',
+            'vendor/lib64/soundfx/libbundleaidl.so',
+            'vendor/lib64/soundfx/libdlbvolaidl.so',
+            'vendor/lib64/soundfx/libdownmixaidl.so',
+            'vendor/lib64/soundfx/libdynamicsprocessingaidl.so',
+            'vendor/lib64/soundfx/libhwdapaidl.so',
+            'vendor/lib64/soundfx/libloudnessenhanceraidl.so',
+            'vendor/lib64/soundfx/liblvacfsprocessingaidl.so',
+            'vendor/lib64/soundfx/libmiwndnsprocessingaidl.so',
+            'vendor/lib64/soundfx/libozoaidl.so',
+            'vendor/lib64/soundfx/libqcompostprocbundle.so',
+            'vendor/lib64/soundfx/libqcomvisualizer.so',
+            'vendor/lib64/soundfx/libqcomvoiceprocessing.so',
+            'vendor/lib64/soundfx/libquasar.so',
+            'vendor/lib64/soundfx/libreverbaidl.so',
+            'vendor/lib64/soundfx/libspatializeraidl.so',
+            'vendor/lib64/soundfx/libswgamedapaidl.so',
+            'vendor/lib64/soundfx/libswspatializeraidl.so',
+            'vendor/lib64/soundfx/libvisualizeraidl.so',
+            'vendor/lib64/soundfx/libvolumelistener.so',
+        ),
+        'android.hardware.audio.effect-V2-ndk.so',
+        'android.hardware.audio.effect-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.audio.core-V2-ndk_yupei.so',
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+        ),
+        'android.hardware.audio.core.sounddose-V2-ndk.so',
+        'android.hardware.audio.core.sounddose-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.bluetooth.audio-impl_yupei.so',
+            'vendor/lib64/btaudio_offload_if.so',
+            'vendor/lib64/hw/android.hardware.bluetooth.audio-impl-qti.so',
+            'vendor/lib64/hw/android.hardware.bluetooth.audio_sw.so',
+            'vendor/lib64/hw/audio.bluetooth_qti.default.so',
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+            'vendor/lib64/libbluetooth_audio_session_aidl_qti.so',
+            'vendor/lib64/libbluetooth_audio_session_aidl_yupei.so',
+        ),
+        'android.hardware.bluetooth.audio-V4-ndk.so',
+        'android.hardware.bluetooth.audio-V4-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/hw/android.hardware.bluetooth.audio_sw.so',
+            'vendor/lib64/hw/libaudiocorehal.default.so',
+            'vendor/lib64/hw/libaudioeffecthal.qti.so',
+            'vendor/lib64/libaudioserviceexampleimpl.so',
+            'vendor/lib64/libmisoundfx_aidl_ext.so',
+            'vendor/lib64/libswspatializeraidl_ext.so',
+            'vendor/lib64/soundfx/libbundleaidl.so',
+            'vendor/lib64/soundfx/libdlbvolaidl.so',
+            'vendor/lib64/soundfx/libdownmixaidl.so',
+            'vendor/lib64/soundfx/libdynamicsprocessingaidl.so',
+            'vendor/lib64/soundfx/libhwdapaidl.so',
+            'vendor/lib64/soundfx/libloudnessenhanceraidl.so',
+            'vendor/lib64/soundfx/liblvacfsprocessingaidl.so',
+            'vendor/lib64/soundfx/libmiwndnsprocessingaidl.so',
+            'vendor/lib64/soundfx/libozoaidl.so',
+            'vendor/lib64/soundfx/libreverbaidl.so',
+            'vendor/lib64/soundfx/libspatializeraidl.so',
+            'vendor/lib64/soundfx/libswgamedapaidl.so',
+            'vendor/lib64/soundfx/libswspatializeraidl.so',
+            'vendor/lib64/soundfx/libvisualizeraidl.so',
+        ),
+        'libaudioaidlcommon.so',
+        'libaudioaidlcommon_yupei.so',
+    ),
+    (
+        (
+            'odm/lib64/libkeymint_empty-nxp.so',
+            'odm/lib64/libkeymint_empty-thales.so',
+        ),
+        'lib_android_keymaster_keymint_utils.so',
+        'lib_android_keymaster_keymint_utils_yupei.so',
+    ),
+    (
+        (
+            'odm/lib64/libidprovision.so',
+            'odm/lib64/libkeymint_empty-nxp.so',
+            'vendor/bin/hw/android.hardware.security.keymint-service-qti',
+            'vendor/lib64/android.hardware.gatekeeper-V1-ndk_yupei.so',
+            'vendor/lib64/lib_android_keymaster_keymint_utils_yupei.so',
+            'vendor/lib64/libqtikeymint.so',
+            'vendor/lib64/libspukeymint.so',
+        ),
+        'android.hardware.security.keymint-V3-ndk.so',
+        'android.hardware.security.keymint-V3-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libspukeymint.so',
+        ),
+        'android.hardware.security.sharedsecret-V2-ndk.so',
+        'android.hardware.security.sharedsecret-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'odm/bin/hw/vendor.xiaomi.hw.touchfeature-service',
+            'odm/bin/hw/vendor.xiaomi.sensor.citsensorservice.aidl',
+            'odm/bin/test-nusensors',
+            'odm/lib64/hw/displayfeature.default.so',
+            'odm/lib64/libadaptivehdr.so',
+            'odm/lib64/libcolortempmode.so',
+            'odm/lib64/libdither.so',
+            'odm/lib64/libflatmode.so',
+            'odm/lib64/libhistprocess.so',
+            'odm/lib64/libmiBrightness.so',
+            'odm/lib64/libmiSensorCtrl.so',
+            'odm/lib64/libpaperMode.so',
+            'odm/lib64/librhytheyecare.so',
+            'odm/lib64/libsdr2hdr.so',
+            'odm/lib64/libsre.so',
+            'odm/lib64/libtruetone.so',
+            'odm/lib64/libvideomode.so',
+            'vendor/lib64/hw/camera.qcom.so',
+            'vendor/lib64/libdpps.so',
+            'vendor/lib64/libgnss.so',
+            'vendor/lib64/libsensorndkbridge_yupei.so',
+        ),
+        'android.frameworks.sensorservice-V1-ndk.so',
+        'android.frameworks.sensorservice-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'odm/bin/hw/vendor.xiaomi.hw.touchfeature-service',
+            'odm/bin/hw/vendor.xiaomi.sensor.citsensorservice.aidl',
+            'odm/bin/test-nusensors',
+            'odm/lib64/hw/displayfeature.default.so',
+            'odm/lib64/libadaptivehdr.so',
+            'odm/lib64/libcolortempmode.so',
+            'odm/lib64/libdither.so',
+            'odm/lib64/libflatmode.so',
+            'odm/lib64/libhistprocess.so',
+            'odm/lib64/libmiBrightness.so',
+            'odm/lib64/libmiSensorCtrl.so',
+            'odm/lib64/libpaperMode.so',
+            'odm/lib64/librhytheyecare.so',
+            'odm/lib64/libsdr2hdr.so',
+            'odm/lib64/libsre.so',
+            'odm/lib64/libtruetone.so',
+            'odm/lib64/libvideomode.so',
+            'vendor/lib64/android.frameworks.sensorservice-V1-ndk_yupei.so',
+            'vendor/lib64/hw/camera.qcom.so',
+            'vendor/lib64/libgnss.so',
+            'vendor/lib64/libsensorndkbridge_yupei.so',
+        ),
+        'android.hardware.sensors-V2-ndk.so',
+        'android.hardware.sensors-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'odm/bin/hw/dvs-aidl-service',
+            'vendor/bin/slim_daemon',
+            'vendor/lib64/libdolbyclstc.so',
+            'vendor/lib64/libdolbyproxyandroid.so',
+        ),
+        'libsensorndkbridge.so',
+        'libsensorndkbridge_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/camera/components/com.qti.node.dewarp.so',
+            'vendor/lib64/hw/com.qti.chi.override.so',
+            'vendor/lib64/libcamximageformatutils.so',
+            'vendor/lib64/libchifeature2.so',
+            'vendor/lib64/libqvrservice.so',
+            'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-service-impl.so',
+        ),
+        'android.hardware.graphics.allocator-V1-ndk.so',
+        'android.hardware.graphics.allocator-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'odm/bin/hw/vendor.xiaomi.sensor.citsensorservice.aidl',
+            'vendor/bin/hw/vendor.qti.hardware.display.allocator-service',
+            'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
+            'vendor/bin/qguard',
+            'vendor/lib64/camera/components/com.qti.node.dewarp.so',
+            'vendor/lib64/egl/eglSubDriverAndroid.so',
+            'vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so',
+            'vendor/lib64/hw/com.qti.chi.override.so',
+            'vendor/lib64/hw/vulkan.adreno.so',
+            'vendor/lib64/libCB.so',
+            'vendor/lib64/libcamximageformatutils.so',
+            'vendor/lib64/libchifeature2.so',
+            'vendor/lib64/libcom.xiaomi.pluginutils.so',
+            'vendor/lib64/libgrallocutils.so',
+            'vendor/lib64/libmialgoengine.so',
+            'vendor/lib64/libmicamera_aidl_device.so',
+            'vendor/lib64/libmicamera_aidl_provider.so',
+            'vendor/lib64/libmicamera_aidl_utils.so',
+            'vendor/lib64/libmicamera_hal_core.so',
+            'vendor/lib64/libmicamera_hal_policy.so',
+            'vendor/lib64/libqcodec2_utils.so',
+            'vendor/lib64/libqvrservice.so',
+            'vendor/lib64/sensors.qsh.so',
+            'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-service-impl.so',
+        ),
+        'android.hardware.graphics.allocator-V2-ndk.so',
+        'android.hardware.graphics.allocator-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'odm/bin/hw/vendor.xiaomi.sensor.citsensorservice.aidl',
+            'vendor/lib64/android.hardware.camera.device-V1-ndk_yupei.so',
+            'vendor/lib64/android.hardware.camera.device-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.graphics.allocator-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.graphics.composer3-V2-ndk_yupei.so',
+            'vendor/lib64/android.hardware.graphics.composer3-V3-ndk_yupei.so',
+            'vendor/lib64/libgui_yupei.so',
+            'vendor/lib64/libqcodec2_core.so',
+        ),
+        'android.hardware.graphics.common-V5-ndk.so',
+        'android.hardware.graphics.common-V5-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/qguard',
+            'vendor/lib64/libaodoptfeature.so',
+            'vendor/lib64/libapengine.so',
+            'vendor/lib64/libcamerapoweroptfeature.so',
+            'vendor/lib64/libgamepoweroptfeature.so',
+            'vendor/lib64/liboffscreenpoweroptfeature.so',
+            'vendor/lib64/libpsmoptfeature.so',
+            'vendor/lib64/libqcodec2_utils.so',
+            'vendor/lib64/libqti-perfd.so',
+            'vendor/lib64/libvideooptfeature.so',
+            'vendor/lib64/libwfddisplayconfig_vendor.so',
+        ),
+        'vendor.qti.hardware.display.config-V5-ndk.so',
+        'vendor.qti.hardware.display.config-V5-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libmisoundfx_aidl_ext.so',
+        ),
+        'android.hardware.audio.effect-V3-ndk.so',
+        'android.hardware.audio.effect-V3-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.camera.provider-V1-ndk_yupei.so',
+            'vendor/lib64/vendor.xiaomi.hardware.camera.injection-V1-ndk.so',
+            'vendor/lib64/vendor.xiaomi.hardware.camera.injection-client.so',
+            'vendor/lib64/vendor.xiaomi.hardware.camera.injection-service.so',
+        ),
+        'android.hardware.camera.device-V1-ndk.so',
+        'android.hardware.camera.device-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.qti.camera.provider-service_64',
+            'vendor/lib64/android.hardware.camera.provider-V2-ndk_yupei.so',
+            'vendor/lib64/camx.device-impl.so',
+            'vendor/lib64/camx.provider-impl.so',
+            'vendor/lib64/libmicamera_aidl_device.so',
+            'vendor/lib64/libmicamera_aidl_provider.so',
+            'vendor/lib64/libmicamera_aidl_utils.so',
+            'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-V1-ndk_yupei.so',
+            'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-V2-ndk_yupei.so',
+        ),
+        'android.hardware.camera.device-V2-ndk.so',
+        'android.hardware.camera.device-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/android.hardware.camera.device-V1-ndk_yupei.so',
+        ),
+        'android.hardware.camera.metadata-V1-ndk.so',
+        'android.hardware.camera.metadata-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.qti.camera.provider-service_64',
+            'vendor/lib64/android.hardware.camera.device-V2-ndk_yupei.so',
+            'vendor/lib64/camx.device-impl.so',
+            'vendor/lib64/camx.provider-impl.so',
+            'vendor/lib64/libmicamera_aidl_device.so',
+            'vendor/lib64/libmicamera_aidl_provider.so',
+            'vendor/lib64/libmicamera_aidl_utils.so',
+        ),
+        'android.hardware.camera.metadata-V2-ndk.so',
+        'android.hardware.camera.metadata-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.qti.camera.provider-service_64',
+            'vendor/lib64/camx.device-impl.so',
+            'vendor/lib64/camx.provider-impl.so',
+            'vendor/lib64/libmicamera_aidl_device.so',
+            'vendor/lib64/libmicamera_aidl_provider.so',
+            'vendor/lib64/libmicamera_aidl_utils.so',
+        ),
+        'android.hardware.camera.provider-V2-ndk.so',
+        'android.hardware.camera.provider-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/vendor.qti.hardware.camera.offlinecamera-service-impl.so',
+        ),
+        'vendor.qti.hardware.camera.offlinecamera-V2-ndk.so',
+        'vendor.qti.hardware.camera.offlinecamera-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/wfdhdcphalservice',
+        ),
+        'android.hardware.drm-V1-ndk.so',
+        'android.hardware.drm-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/hw/libqtigatekeeper.so',
+        ),
+        'android.hardware.gatekeeper-V1-ndk.so',
+        'android.hardware.gatekeeper-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/vendor.qti.hardware.display.composer3-V2-ndk_yupei.so',
+        ),
+        'android.hardware.graphics.composer3-V2-ndk.so',
+        'android.hardware.graphics.composer3-V2-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
+            'vendor/lib64/vendor.qti.hardware.display.composer3-V1-ndk_yupei.so',
+            'vendor/lib64/vendor.qti.hardware.display.composer3-V3-ndk_yupei.so',
+        ),
+        'android.hardware.graphics.composer3-V3-ndk.so',
+        'android.hardware.graphics.composer3-V3-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/bin/hw/vendor.qti.hardware.display.composer-service',
+        ),
+        'vendor.qti.hardware.display.composer3-V1-ndk.so',
+        'vendor.qti.hardware.display.composer3-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libagmclient.so',
+            'vendor/lib64/libagmipcservice.so',
+        ),
+        'vendor.qti.hardware.agm-V1-ndk.so',
+        'vendor.qti.hardware.agm-V1-ndk_yupei.so',
+    ),
+    (
+        (
+            'vendor/lib64/libpalclient.so',
+            'vendor/lib64/libpaleventnotifier.so',
+            'vendor/lib64/libpalipcservice.so',
+        ),
+        'vendor.qti.hardware.pal-V1-ndk.so',
+        'vendor.qti.hardware.pal-V1-ndk_yupei.so',
+    ),
+]
+
+blob_fixups = {
+    (
+        'odm/etc/camera/enhance_motiontuning.xml',
+        'odm/etc/camera/motiontuning.xml',
+        'odm/etc/camera/snsc_bokeh_motiontuning.xml',
+        'odm/etc/camera/snsc_enhance_motiontuning.xml',
+        'odm/etc/camera/snsc_motiontuning.xml',
+        'odm/etc/camera/snsc_noface_motiontuning.xml',
+    ): blob_fixup().regex_replace(r'^<\?xml=version=', '<?xml version='),
+    (
+        'odm/lib64/libAncHumanPreviewBokeh.so',
+        'odm/lib64/libarcsoft_beautyshot.so',
     ): blob_fixup()
-        .replace_needed(
-            'libtinyxml2.so',
-            'libtinyxml2-stock.so',
-    ),
+        .clear_symbol_version('AHardwareBuffer_allocate')
+        .clear_symbol_version('AHardwareBuffer_describe')
+        .clear_symbol_version('AHardwareBuffer_lock')
+        .clear_symbol_version('AHardwareBuffer_release')
+        .clear_symbol_version('AHardwareBuffer_unlock'),
+    (
+        'odm/lib64/libMiEmojiEffect.so',
+        'odm/lib64/libMiVideoFilter.so',
+    ): blob_fixup()
+        .clear_symbol_version('AHardwareBuffer_allocate')
+        .clear_symbol_version('AHardwareBuffer_describe')
+        .clear_symbol_version('AHardwareBuffer_lockPlanes')
+        .clear_symbol_version('AHardwareBuffer_release')
+        .clear_symbol_version('AHardwareBuffer_unlock'),
+    'vendor/lib64/libMiPhotoFilter.so': blob_fixup()
+        .clear_symbol_version('AHardwareBuffer_allocate')
+        .clear_symbol_version('AHardwareBuffer_describe')
+        .clear_symbol_version('AHardwareBuffer_isSupported')
+        .clear_symbol_version('AHardwareBuffer_lockPlanes')
+        .clear_symbol_version('AHardwareBuffer_release')
+        .clear_symbol_version('AHardwareBuffer_unlock'),
+    'system_ext/lib64/libmiracastsystem.so': blob_fixup().add_needed('libaudiobase.so'),
+    'system_ext/lib64/libsigmautils.so': blob_fixup().add_needed('libgui_shim.so'),
+    'vendor/lib64/libcameraopt.so': blob_fixup().add_needed('libprocessgroup_shim.so'),
+    'vendor/lib64/libfdmonitor.so': blob_fixup().add_needed('libfdtrack_yupei_shim.so'),
+}
 
-    # --- graphics.common V5 -> V7 (codec2 core) ---
-    'vendor/lib64/libqcodec2_core.so': blob_fixup()
-        .replace_needed(
-            'android.hardware.graphics.common-V5-ndk.so',
-            'android.hardware.graphics.common-V7-ndk.so',
-    ),
+for paths, original, renamed in private_library_fixups:
+    for path in paths:
+        fixup = blob_fixup().replace_needed(original, renamed)
+        if path in blob_fixups:
+            blob_fixups[path].merge(fixup)
+        else:
+            blob_fixups[path] = fixup
 
-    # --- sepolicy fixup ---
-    'vendor/etc/init/qms.rc': blob_fixup()
-        .regex_replace(
-            r'(service vendor\.qms /vendor/bin/qms\n)(?:\s+user \S+\n)?',
-            r'\1     user root\n',
-        ),
-
-    'vendor/etc/init/vendor.dpmd.rc': blob_fixup()
-        .regex_replace(
-            r'(service vendor\.dpmd /vendor/bin/vendor\.dpmd\n)',
-            r'\1    user system\n',
-        ),
-
-    'vendor/etc/ueventd.rc': blob_fixup()
-        .add_line_if_missing(
-            '/sys/class/power_supply/battery charging_enabled 0664 system system',
-        )
-        .add_line_if_missing(
-            '/sys/class/power_supply/battery input_suspend 0664 system system',
-        ),
-
-    'vendor/etc/seccomp_policy/gnss@2.0-qsap-location.policy': blob_fixup()
-        .add_line_if_missing(
-            'sched_get_priority_min: 1',
-        )
-        .add_line_if_missing(
-            'sched_get_priority_max: 1',
-        ),
-
-    'vendor/lib64/android.hardware.bluetooth.audio-impl.so': blob_fixup()
-        .replace_needed(
-            'libbluetooth_audio_session_aidl.so',
-            'libbluetooth_audio_session_aidl_prebuilt.so',
-        ),
-
-    'vendor/lib64/libaudioserviceexampleimpl.so': blob_fixup()
-        .add_needed('libaudioutils_shim.so')
-        .replace_needed(
-            'libbluetooth_audio_session_aidl.so',
-            'libbluetooth_audio_session_aidl_prebuilt.so',
-        ),
-
-    'product/app/ZuiNotes/ZuiNotes.apk': blob_fixup()
-        .call(fix_zui_notes)
-        .stripzip(),
-}  # fmt: skip
+blob_fixups['vendor/lib64/libaudioserviceexampleimpl.so'].merge(
+    blob_fixup().add_needed('libaudioutils_shim.so')
+)
 
 module = ExtractUtilsModule(
-    'malbec',
-    'lenovo',
+    'yupei',
+    'xiaomi',
     blob_fixups=blob_fixups,
     lib_fixups=lib_fixups,
     namespace_imports=namespace_imports,
-    # malbec keeps firmware STOCK -- we don't package radio/xbl/tz/etc.
-    add_firmware_proprietary_file=False,
+    check_elf=True,
 )
 
 if __name__ == '__main__':
-    utils = ExtractUtils.device(module)
-    utils.run()
+    ExtractUtils.device(module).run()

@@ -33,43 +33,45 @@
 #
 # start ril-daemon only for targets on which radio is present
 #
-baseband=`getprop ro.baseband`
-datamode=`getprop persist.vendor.data.mode`
-low_ram=`getprop ro.config.low_ram`
+baseband=$(getprop ro.baseband)
+datamode=$(getprop persist.vendor.data.mode)
+low_ram=$(getprop ro.config.low_ram)
 
 case "$baseband" in
-    "apq" | "sda" | "qcs" )
-    setprop ro.vendor.radio.noril yes
+    "apq" | "sda" | "qcs")
+        setprop ro.vendor.radio.noril yes
+        ;;
 esac
 
 case "$baseband" in
     "msm" | "csfb" | "svlte2a" | "mdm" | "mdm2" | "sglte" | "sglte2" | "dsda2" | "unknown" | "dsda3" | "sdm" | "sdx" | "sm6")
-    case "$datamode" in
-        "tethered")
-            start vendor.dataqti
-            if [ "$low_ram" != "true" ]; then
-              start vendor.dataadpl
-            fi
-            ;;
-        "concurrent")
-            start vendor.dataqti
-            if [ "$low_ram" != "true" ]; then
-              start vendor.dataadpl
-            fi
-            ;;
-        *)
-            ;;
-    esac
+        case "$datamode" in
+            "tethered")
+                start vendor.dataqti
+                if [ "$low_ram" != "true" ]; then
+                    start vendor.dataadpl
+                fi
+                ;;
+            "concurrent")
+                start vendor.dataqti
+                if [ "$low_ram" != "true" ]; then
+                    start vendor.dataadpl
+                fi
+                ;;
+            *)
+                ;;
+        esac
+        ;;
 esac
 
 #
 # Allow persistent faking of bms
 # User needs to set fake bms charge in persist.vendor.bms.fake_batt_capacity
 #
-fake_batt_capacity=`getprop persist.vendor.bms.fake_batt_capacity`
+fake_batt_capacity=$(getprop persist.vendor.bms.fake_batt_capacity)
 case "$fake_batt_capacity" in
     "") ;; #Do nothing here
-    * )
-    echo "$fake_batt_capacity" > /sys/class/power_supply/battery/capacity
-    ;;
+    *)
+        echo "$fake_batt_capacity" > /sys/class/power_supply/battery/capacity
+        ;;
 esac

@@ -1,1 +1,1 @@
-bash "$(gettop)/device/lenovo/malbec-kernel/setup-kernel-headers.sh" "$(gettop)"
+bash "$(gettop)/device/xiaomi/yupei-kernel/setup-kernel-headers.sh" "$(gettop)"

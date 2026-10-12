@@ -34,15 +34,15 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #===============================================================================
 
-build_codename=`getprop vendor.media.system.build_codename`
+build_codename=$(getprop vendor.media.system.build_codename)
 
 if [ -f /sys/devices/soc0/soc_id ]; then
-    soc_hwid=`cat /sys/devices/soc0/soc_id` 2> /dev/null
+    soc_hwid=$(cat /sys/devices/soc0/soc_id) 2> /dev/null
 else
-    soc_hwid=`cat /sys/devices/system/soc/soc0/id` 2> /dev/null
+    soc_hwid=$(cat /sys/devices/system/soc/soc0/id) 2> /dev/null
 fi
 
-target=`getprop ro.board.platform`
+target=$(getprop ro.board.platform)
 case "$target" in
     "anorak")
         setprop vendor.mm.target.enable.qcom_parser 0
@@ -59,38 +59,32 @@ case "$target" in
     "sun")
         setprop vendor.mm.target.enable.qcom_parser 0
         case "$soc_hwid" in
-            655|681|694)
-                setprop vendor.media.target_variant "_tuna_v0"
-                sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc/sku_version` 2> /dev/null
-                if [ $sku_ver -eq 1 ]; then
+            655 | 681 | 694)
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc/sku_version) 2> /dev/null
+                if [ $sku_ver -eq 0 ]; then
+                    setprop vendor.media.target_variant "_tuna_v0"
+                    setprop vendor.netflix.bsp_rev "SM8735-40387-1"
+                elif [ $sku_ver -eq 1 ]; then
                     setprop vendor.media.target_variant "_tuna_v1"
                 fi
-                if [ $build_codename -le "16" ]; then
-                    setprop vendor.netflix.bsp_rev "SM8735-40387-1"
-                fi
                 ;;
-            659|686|720|721|731|732)
+            659 | 686)
                 setprop vendor.media.target_variant "_kera_v0"
-                if [ $build_codename -le "15" ]; then
-                    setprop vendor.netflix.bsp_rev "Q7750-40388-1"
-                fi
-                sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc/sku_version` 2> /dev/null
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc/sku_version) 2> /dev/null
                 if [ $sku_ver -eq 1 ]; then
                     setprop vendor.media.target_variant "_kera_v1"
                 fi
                 ;;
             *)
-            setprop vendor.media.target_variant "_sun"
-            if [ $build_codename -le "16" ]; then
+                setprop vendor.media.target_variant "_sun"
                 setprop vendor.netflix.bsp_rev "Q8750-39568-1"
-            fi
-            ;;
+                ;;
         esac
         ;;
     "taro")
         setprop vendor.mm.target.enable.qcom_parser 1040479
         case "$soc_hwid" in
-            530|531|540)
+            530 | 531 | 540)
                 setprop vendor.media.target_variant "_cape"
                 ;;
             *)
@@ -103,7 +97,7 @@ case "$target" in
             450)
                 setprop vendor.media.target_variant "_shima_v3"
                 setprop vendor.netflix.bsp_rev ""
-                sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc/sku_version` 2> /dev/null
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc/sku_version) 2> /dev/null
                 if [ $sku_ver -eq 1 ]; then
                     setprop vendor.media.target_variant "_shima_v1"
                 elif [ $sku_ver -eq 2 ]; then

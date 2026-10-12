@@ -27,9 +27,8 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-country=`getprop wlan.crda.country`
+country=$(getprop wlan.crda.country)
 # crda takes input in COUNTRY environment variable
-if [ $country != "" ]
-then
-COUNTRY="$country" /system/bin/crda
+if [ $country != "" ]; then
+    COUNTRY="$country" /system/bin/crda
 fi

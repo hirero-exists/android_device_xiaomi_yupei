@@ -4,9 +4,9 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/custom_malbec.mk
+    $(LOCAL_DIR)/custom_yupei.mk
 
 COMMON_LUNCH_CHOICES := \
-    custom_malbec-cp2a-user \
-    custom_malbec-cp2a-userdebug \
-    custom_malbec-cp2a-eng
+    custom_yupei-cp2a-user \
+    custom_yupei-cp2a-userdebug \
+    custom_yupei-cp2a-eng

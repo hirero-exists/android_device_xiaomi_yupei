@@ -1,53 +1,53 @@
 [AID_VENDOR_QTI_DIAG]
-value:2901
+value: 2901
 
 [AID_VENDOR_QDSS]
-value:2902
+value: 2902
 
 [AID_VENDOR_RFS]
-value:2903
+value: 2903
 
 [AID_VENDOR_RFS_SHARED]
-value:2904
+value: 2904
 
 [AID_VENDOR_ADPL_ODL]
-value:2905
+value: 2905
 
 [AID_VENDOR_QRTR]
-value:2906
+value: 2906
 
 [AID_VENDOR_THERMAL]
-value:2907
+value: 2907
 
 [AID_VENDOR_FASTRPC]
-value:2908
+value: 2908
 
 [AID_VENDOR_QTR]
-value:2909
+value: 2909
 
 [AID_VENDOR_NXP_STRONGBOX]
-value:2910
+value: 2910
 
 [AID_VENDOR_NXP_WEAVER]
-value:2911
+value: 2911
 
 [AID_VENDOR_SSGTZD]
-value:2912
+value: 2912
 
 [AID_VENDOR_THALES_STRONGBOX]
-value:2913
+value: 2913
 
 [AID_VENDOR_QCC]
-value:2914
+value: 2914
 
 [AID_VENDOR_NXP_AUTHSECRET]
-value:2915
+value: 2915
 
 [AID_VENDOR_THALES_WEAVER]
-value:2916
+value: 2916
 
 [AID_VENDOR_THALES_AUTHSECRET]
-value:2917
+value: 2917
 
 [vendor/bin/hw/android.hardware.security.keymint3-service.strongbox.nxp]
 mode: 0755
@@ -219,37 +219,37 @@ caps: NET_BIND_SERVICE BLOCK_SUSPEND NET_ADMIN
 
 [vendor/bin/slim_daemon]
 mode: 0755
-user:  AID_GPS
+user: AID_GPS
 group: AID_GPS
 caps: NET_BIND_SERVICE
 
 [system/vendor/bin/slim_daemon]
 mode: 0755
-user:  AID_GPS
+user: AID_GPS
 group: AID_GPS
 caps: NET_BIND_SERVICE
 
 [vendor/bin/loc_launcher]
 mode: 0755
-user:  AID_GPS
+user: AID_GPS
 group: AID_GPS
 caps: SETUID SETGID
 
 [system/vendor/bin/loc_launcher]
 mode: 0755
-user:  AID_GPS
+user: AID_GPS
 group: AID_GPS
 caps: SETUID SETGID
 
 [vendor/bin/lowi-server]
 mode: 0755
-user:  AID_GPS
+user: AID_GPS
 group: AID_GPS
 caps: NET_ADMIN
 
 [vendor/bin/xtwifi-client]
 mode: 0755
-user:  AID_GPS
+user: AID_GPS
 group: AID_GPS
 caps: 0
 

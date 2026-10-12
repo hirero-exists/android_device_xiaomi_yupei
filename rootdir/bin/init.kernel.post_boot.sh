@@ -1,6 +1,6 @@
 #=============================================================================
-# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-# All rights reserved.
+# Copyright (c) 2019-2024 Qualcomm Technologies, Inc.
+# All Rights Reserved.
 # Confidential and Proprietary - Qualcomm Technologies, Inc.
 #
 # Copyright (c) 2009-2012, 2014-2019, The Linux Foundation. All rights reserved.
@@ -31,21 +31,21 @@
 #=============================================================================
 
 if [ -f /sys/devices/soc0/soc_id ]; then
-	platformid=`cat /sys/devices/soc0/soc_id`
+    platformid=$(cat /sys/devices/soc0/soc_id)
 fi
 
 case "$platformid" in
-	"618"|"639"|"705"|"706")
-		#Pass as an argument the max number of clusters supported on the SOC
-		/vendor/bin/sh /vendor/bin/init.kernel.post_boot-sun.sh 2
-		;;
-	"655"|"681"|"694")
-		/vendor/bin/sh /vendor/bin/init.kernel.post_boot-tuna.sh 4
-		;;
-	"686"|"659"|"720"|"721"|"731"|"732")
-		/vendor/bin/sh /vendor/bin/init.kernel.post_boot-kera.sh 3
-		;;
-	*)
-		echo "***WARNING***: Invalid SoC ID\n\t No postboot settings applied!!\n"
-		;;
+    "618" | "639")
+        #Pass as an argument the max number of clusters supported on the SOC
+        /vendor/bin/sh /vendor/bin/init.kernel.post_boot-sun.sh 2
+        ;;
+    "655" | "681" | "694")
+        /vendor/bin/sh /vendor/bin/init.kernel.post_boot-tuna.sh 4
+        ;;
+    "686" | "659")
+        /vendor/bin/sh /vendor/bin/init.kernel.post_boot-kera.sh 3
+        ;;
+    *)
+        echo "***WARNING***: Invalid SoC ID\n\t No postboot settings applied!!\n"
+        ;;
 esac

@@ -16,29 +16,38 @@ type vendor_sysfs_xm_power, fs_type, sysfs_type;
 
 # Diag
 type minidump_data_file, data_file_type, file_type;
+type ta_data_file, data_file_type, file_type;
+type vendor_qrtr_data_file, data_file_type, file_type;
 type vendor_bsp_data_log_file, data_file_type, file_type;
 
 # Display
+type vendor_sysfs_displayfeature, fs_type, sysfs_type;
 
 # Fingerprint
+type vendor_fingerprint_data_file, data_file_type, file_type;
+type vendor_fingerprint_data_file_fpdump, data_file_type, file_type;
 type sysfs_tp_fodstatus, fs_type, sysfs_type;
 
 # Info
 type vendor_sysfs_hardwareinfo, fs_type, sysfs_type;
 
-type sysfs_kb, fs_type, sysfs_type;
-type proc_lenovo_touchscreen, fs_type, proc_type;
-
 # IR
 type ir_spi_device, dev_type;
 
 # Metis/Migt
+type migt_dev, dev_type, mlstrustedobject;
+type sysfs_migt, fs_type, sysfs_type;
 
-# Memory
-type procfs_memory, fs_type, proc_type;
+# Scheduler
+type proc_walt, fs_type, proc_type;
 
 # Sensor
 type vendor_aon_vendor_data_file, data_file_type, file_type;
+
+# SLA
+type qti_proc_sla, proc_type;
+type sla_data_file, data_file_type, file_type;
+type slad_socket, file_type;
 
 # Thermal
 type sys_thermal_wifi_limit, fs_type, sysfs_type;
@@ -55,9 +64,5 @@ type sysfs_tp_virtual_prox, fs_type, sysfs_type;
 type touchreport_data_file, data_file_type, file_type;
 type vendor_data_touchreport_file, data_file_type, file_type;
 
-# Walt
-type proc_walt, fs_type, proc_type;
-
 # Wlan
 type vendor_mac_vendor_data_file, data_file_type, file_type, mlstrustedobject;
-type vendor_smart_charge_device, dev_type;

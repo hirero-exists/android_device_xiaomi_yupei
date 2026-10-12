@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<compatibility-matrix version="8.0" type="device">
+    <hal format="hidl" optional="true">
+        <name>vendor.qti.hardware.sigma_miracast</name>
+        <version>1.0</version>
+        <interface>
+            <name>Isigma_miracast</name>
+            <instance>sigmahal</instance>
+            <instance>sigmahal64</instance>
+        </interface>
+    </hal>
+
+    <hal format="aidl" optional="true">
+        <name>vendor.qti.hardware.sigma_miracast_aidl</name>
+        <version>1</version>
+        <interface>
+            <name>ISigma_miracast</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+
+    <hal format="aidl" optional="true">
+        <name>vendor.qti.qesdsys</name>
+        <version>1</version>
+        <interface>
+            <name>IQesdSys</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</compatibility-matrix>

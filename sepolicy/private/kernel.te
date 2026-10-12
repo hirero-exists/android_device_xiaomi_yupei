@@ -1,1 +1,0 @@
-allow kernel kernel:capability { net_bind_service };

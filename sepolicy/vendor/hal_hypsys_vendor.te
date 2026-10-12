@@ -7,3 +7,6 @@ binder_use(hal_hypsys_vendor)
 init_daemon_domain(hal_hypsys_vendor)
 
 allow hal_hypsys_vendor hal_hypsys_vendor_service:service_manager { add find };
+
+hal_client_domain(hal_hypsys_vendor, hal_misyscore)
+binder_call(hal_hypsys_vendor, hal_hypsys_vendor)

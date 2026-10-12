@@ -1,5 +1,0 @@
-(type new_objects)
-(typeattribute new_objects)
-(typeattributeset new_objects
-  (new_objects
-    malbec_parts_prop))

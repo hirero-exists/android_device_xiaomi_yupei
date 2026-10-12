@@ -1,11 +1,22 @@
-# Camera
-allow platform_app vendor_displayfeature_prop:file read;
-
+get_prop(platform_app, vendor_camera_prop)
 get_prop(platform_app, vendor_camera_p3enable_prop)
+get_prop(platform_app, vendor_camera_sensor_prop)
+get_prop(platform_app, vendor_camera_xdrversion_prop)
+get_prop(platform_app, vendor_display_prop)
 get_prop(platform_app, vendor_displayfeature_prop)
+get_prop(platform_app, vendor_fp_prop)
+get_prop(platform_app, vendor_panel_info_prop)
 
-# FPS info
-allow platform_app vendor_sysfs_graphics:dir search;
-allow platform_app vendor_sysfs_graphics:file r_file_perms;
+allow platform_app hal_hypsys_vendor_service:service_manager find;
 
-hal_client_domain(platform_app, hal_aidl_dms)
+binder_call(platform_app, hal_hypsys_vendor)
+
+allow platform_app hal_aidlbgservice_service:service_manager find;
+allow platform_app hal_quickcamera_service:service_manager find;
+
+allow platform_app adsprpcd_file:dir { getattr search };
+
+allow platform_app proc_pressure_mem:file r_file_perms;
+allow platform_app proc_pressure_cpu:file r_file_perms;
+
+allow platform_app app_data_file:file execute;

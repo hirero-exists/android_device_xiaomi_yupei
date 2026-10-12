@@ -31,30 +31,30 @@ export PATH=/vendor/bin
 
 # Set platform variables
 if [ -f /sys/devices/soc0/hw_platform ]; then
-    soc_hwplatform=`cat /sys/devices/soc0/hw_platform` 2> /dev/null
+    soc_hwplatform=$(cat /sys/devices/soc0/hw_platform) 2> /dev/null
 else
-    soc_hwplatform=`cat /sys/devices/system/soc/soc0/hw_platform` 2> /dev/null
+    soc_hwplatform=$(cat /sys/devices/system/soc/soc0/hw_platform) 2> /dev/null
 fi
 if [ -f /sys/devices/soc0/soc_id ]; then
-    soc_hwid=`cat /sys/devices/soc0/soc_id` 2> /dev/null
+    soc_hwid=$(cat /sys/devices/soc0/soc_id) 2> /dev/null
 else
-    soc_hwid=`cat /sys/devices/system/soc/soc0/id` 2> /dev/null
+    soc_hwid=$(cat /sys/devices/system/soc/soc0/id) 2> /dev/null
 fi
 if [ -f /sys/devices/soc0/platform_version ]; then
-    soc_hwver=`cat /sys/devices/soc0/platform_version` 2> /dev/null
+    soc_hwver=$(cat /sys/devices/soc0/platform_version) 2> /dev/null
 else
-    soc_hwver=`cat /sys/devices/system/soc/soc0/platform_version` 2> /dev/null
+    soc_hwver=$(cat /sys/devices/system/soc/soc0/platform_version) 2> /dev/null
 fi
 
 if [ -f /sys/class/drm/card0-DSI-1/modes ]; then
     echo "detect" > /sys/class/drm/card0-DSI-1/status
     mode_file=/sys/class/drm/card0-DSI-1/modes
     while read line; do
-        fb_width=${line%%x*};
-        break;
+        fb_width=${line%%x*}
+        break
     done < $mode_file
 elif [ -f /sys/class/graphics/fb0/virtual_size ]; then
-    res=`cat /sys/class/graphics/fb0/virtual_size` 2> /dev/null
+    res=$(cat /sys/class/graphics/fb0/virtual_size) 2> /dev/null
     fb_width=${res%,*}
 fi
 
@@ -63,70 +63,131 @@ log -t BOOT -p i "MSM target '$1', SoC '$soc_hwplatform', HwID '$soc_hwid', SoC 
 #For drm based display driver
 vbfile=/sys/module/drm/parameters/vblankoffdelay
 if [ -w $vbfile ]; then
-    echo -1 >  $vbfile
+    echo -1 > $vbfile
 else
     log -t DRM_BOOT -p w "file: '$vbfile' or perms doesn't exist"
 fi
 
 function set_density_by_fb() {
+    project=$(getprop ro.product.device)
     #put default density based on width
     if [ -z $fb_width ]; then
-        setprop vendor.display.lcd_density 320
+        case "$project" in
+            "haotian")
+                setprop vendor.display.lcd_density 600
+                ;;
+            "miro")
+                setprop vendor.display.lcd_density 600
+                ;;
+            "dada")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "bixi")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "onyx")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "luming")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "yupei")
+                setprop vendor.display.lcd_density 440
+                ;;
+            "piano")
+                setprop vendor.display.lcd_density 440
+                ;;
+            "annibale")
+                setprop vendor.display.lcd_density 480
+                ;;
+            *)
+                setprop vendor.display.lcd_density 440
+                ;;
+        esac
     else
         if [ $fb_width -ge 1600 ]; then
-           setprop vendor.display.lcd_density 640
+            setprop vendor.display.lcd_density 640
         elif [ $fb_width -ge 1440 ]; then
-           setprop vendor.display.lcd_density 560
+            setprop vendor.display.lcd_density 560
         elif [ $fb_width -ge 1080 ]; then
-           setprop vendor.display.lcd_density 480
+            setprop vendor.display.lcd_density 480
         elif [ $fb_width -ge 720 ]; then
-           setprop vendor.display.lcd_density 320 #for 720X1280 resolution
+            setprop vendor.display.lcd_density 320 #for 720X1280 resolution
         elif [ $fb_width -ge 480 ]; then
             setprop vendor.display.lcd_density 240 #for 480X854 QRD resolution
         else
             setprop vendor.display.lcd_density 160
         fi
+        case "$project" in
+            "haotian")
+                setprop vendor.display.lcd_density 600
+                ;;
+            "miro")
+                setprop vendor.display.lcd_density 600
+                ;;
+            "dada")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "bixi")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "onyx")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "luming")
+                setprop vendor.display.lcd_density 520
+                ;;
+            "yupei")
+                setprop vendor.display.lcd_density 440
+                ;;
+            "piano")
+                setprop vendor.display.lcd_density 440
+                ;;
+            "annibale")
+                setprop vendor.display.lcd_density 480
+                ;;
+        esac
     fi
 }
 
-target=`getprop ro.board.platform`
+target=$(getprop ro.board.platform)
 case "$target" in
     "msm7630_surf" | "msm7630_1x" | "msm7630_fusion")
         case "$soc_hwplatform" in
             "FFA" | "SVLTE_FFA")
                 # linking to surf_keypad_qwerty.kcm.bin instead of surf_keypad_numeric.kcm.bin so that
                 # the UI keyboard works fine.
-                ln -s  /system/usr/keychars/surf_keypad_qwerty.kcm.bin /system/usr/keychars/surf_keypad.kcm.bin
+                ln -s /system/usr/keychars/surf_keypad_qwerty.kcm.bin /system/usr/keychars/surf_keypad.kcm.bin
                 ;;
             "Fluid")
                 setprop vendor.display.lcd_density 240
                 setprop qcom.bt.dev_power_class 2
                 ;;
             *)
-                ln -s  /system/usr/keychars/surf_keypad_qwerty.kcm.bin /system/usr/keychars/surf_keypad.kcm.bin
+                ln -s /system/usr/keychars/surf_keypad_qwerty.kcm.bin /system/usr/keychars/surf_keypad.kcm.bin
                 ;;
         esac
         ;;
-     "sm6150")
-         case "$soc_hwplatform" in
-             "ADP")
-                 setprop vendor.display.lcd_density 160
-                 ;;
-         esac
-         case "$soc_hwid" in
-             365|366)
-                 sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version` 2> /dev/null
-                 setprop vendor.media.target.version 1
-                 if [ $sku_ver -eq 1 ]; then
-                     setprop vendor.media.target.version 2
-                 fi
-                 ;;
-             355|369|377|384)
-                 setprop vendor.chre.enabled 0
-                 ;;
-             *)
-         esac
-         ;;
+    "sm6150")
+        case "$soc_hwplatform" in
+            "ADP")
+                setprop vendor.display.lcd_density 160
+                ;;
+        esac
+        case "$soc_hwid" in
+            365 | 366)
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version) 2> /dev/null
+                setprop vendor.media.target.version 1
+                if [ $sku_ver -eq 1 ]; then
+                    setprop vendor.media.target.version 2
+                fi
+                ;;
+            355 | 369 | 377 | 384)
+                setprop vendor.chre.enabled 0
+                ;;
+            *) ;;
+        esac
+        ;;
     "msm8660")
         case "$soc_hwplatform" in
             "Fluid")
@@ -160,7 +221,7 @@ case "$target" in
                         setprop vendor.display.lcd_density 240
                         ;;
                 esac
-            ;;
+                ;;
         esac
 
         #Set up composition type based on the target
@@ -169,11 +230,11 @@ case "$target" in
                 #8960
                 setprop debug.composition.type dyn
                 ;;
-            153|154|155|156|157|138)
+            153 | 154 | 155 | 156 | 157 | 138)
                 #8064 V2 PRIME | 8930AB | 8630AB | 8230AB | 8030AB | 8960AB
                 setprop debug.composition.type c2d
                 ;;
-            *)
+            *) ;;
         esac
         ;;
 
@@ -254,15 +315,14 @@ case "$target" in
         # 196609 is decimal for 0x30001 to report version 3.1
         # 196610 is decimal for 0x30002 to report version 3.2
         case "$soc_hwid" in
-            294|295|296|297|298|313|353|354|363|364)
+            294 | 295 | 296 | 297 | 298 | 313 | 353 | 354 | 363 | 364)
                 setprop vendor.opengles.version 196610
-                if [ $soc_hwid = 354 ]
-                then
+                if [ $soc_hwid = 354 ]; then
                     setprop vendor.media.target.version 1
                     log -t BOOT -p i "SDM429 early_boot prop set for: HwID '$soc_hwid'"
                 fi
                 ;;
-            303|307|308|309|320)
+            303 | 307 | 308 | 309 | 320)
                 # Vulkan is not supported for 8917 variants
                 setprop vendor.opengles.version 196608
                 setprop persist.graphics.vulkan.disable true
@@ -322,14 +382,14 @@ case "$target" in
         ;;
     "lito")
         case "$soc_hwid" in
-            400|440)
-                sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version` 2> /dev/null
+            400 | 440)
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version) 2> /dev/null
                 if [ $sku_ver -eq 1 ]; then
                     setprop vendor.media.target.version 1
                 fi
                 ;;
-            434|459)
-                sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version` 2> /dev/null
+            434 | 459)
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version) 2> /dev/null
                 setprop vendor.media.target.version 2
                 if [ $sku_ver -eq 1 ]; then
                     setprop vendor.media.target.version 3
@@ -353,12 +413,12 @@ case "$target" in
         esac
         ;;
     "parrot")
-         case "$soc_hwid" in
-             602|568|654|653|582|581|715)
-                 setprop vendor.fastrpc.disable.cdsprpcd.daemon 1
-                 ;;
-         esac
-         ;;
+        case "$soc_hwid" in
+            602 | 568 | 654 | 653 | 582 | 581)
+                setprop vendor.fastrpc.disable.cdsprpcd.daemon 1
+                ;;
+        esac
+        ;;
     "sdm710" | "msmpeafowl")
         case "$soc_hwplatform" in
             *)
@@ -368,7 +428,7 @@ case "$target" in
                     setprop vendor.display.lcd_density 640
                 fi
 
-                sku_ver=`cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version` 2> /dev/null
+                sku_ver=$(cat /sys/devices/platform/soc/aa00000.qcom,vidc1/sku_version) 2> /dev/null
                 if [ $sku_ver -eq 1 ]; then
                     setprop vendor.media.target.version 1
                 fi
@@ -377,16 +437,16 @@ case "$target" in
         ;;
     "msm8953")
         cap_ver = 1
-                if [ -e "/sys/devices/platform/soc/1d00000.qcom,vidc/capability_version" ]; then
-                    cap_ver=`cat /sys/devices/platform/soc/1d00000.qcom,vidc/capability_version` 2> /dev/null
-                else
-                    cap_ver=`cat /sys/devices/soc/1d00000.qcom,vidc/capability_version` 2> /dev/null
-                fi
+        if [ -e "/sys/devices/platform/soc/1d00000.qcom,vidc/capability_version" ]; then
+            cap_ver=$(cat /sys/devices/platform/soc/1d00000.qcom,vidc/capability_version) 2> /dev/null
+        else
+            cap_ver=$(cat /sys/devices/soc/1d00000.qcom,vidc/capability_version) 2> /dev/null
+        fi
 
-                if [ $cap_ver -eq 1 ]; then
-                    setprop vendor.media.target.version 1
-                fi
-                ;;
+        if [ $cap_ver -eq 1 ]; then
+            setprop vendor.media.target.version 1
+        fi
+        ;;
     #Set property to differentiate SDM660 & SDM455
     #SOC ID for SDM455 is 385
     "sdm660")
@@ -410,20 +470,32 @@ case "$target" in
     "sun")
         setprop vendor.display.supports_background_blur 1
         case "$soc_hwid" in
-            655|681|659|694|686)
+            655 | 681 | 659 | 694 | 686)
                 setprop vendor.display.supports_background_blur 0
                 ;;
         esac
         ;;
 esac
 
-baseband=`getprop ro.baseband`
+device=$(getprop ro.product.device)
+case "$device" in
+    "luming")
+        setprop vendor.display.supports_background_blur 1
+        ;;
+    "onyx")
+        setprop vendor.display.supports_background_blur 1
+        ;;
+esac
+
+baseband=$(getprop ro.baseband)
 #enable atfwd daemon all targets except sda, apq, qcs
 case "$baseband" in
-    "apq" | "sda" | "qcs" )
-        setprop persist.vendor.radio.atfwd.start false;;
+    "apq" | "sda" | "qcs")
+        setprop persist.vendor.radio.atfwd.start false
+        ;;
     *)
-        setprop persist.vendor.radio.atfwd.start true;;
+        setprop persist.vendor.radio.atfwd.start true
+        ;;
 esac
 
 #set default lcd density
@@ -432,41 +504,40 @@ esac
 #property if any target is setting forcefully.
 set_density_by_fb
 
-
 # set Lilliput LCD density for ADP
-product=`getprop ro.board.platform`
+product=$(getprop ro.board.platform)
 
 case "$product" in
-        "msmnile_au")
-         setprop vendor.display.lcd_density 160
-         echo 902400000 > /sys/class/devfreq/soc:qcom,cpu0-cpu-l3-lat/min_freq
-         echo 1612800000 > /sys/class/devfreq/soc:qcom,cpu0-cpu-l3-lat/max_freq
-         echo 902400000 > /sys/class/devfreq/soc:qcom,cpu4-cpu-l3-lat/min_freq
-         echo 1612800000 > /sys/class/devfreq/soc:qcom,cpu4-cpu-l3-lat/max_freq
-         ;;
-        *)
+    "msmnile_au")
+        setprop vendor.display.lcd_density 160
+        echo 902400000 > /sys/class/devfreq/soc:qcom,cpu0-cpu-l3-lat/min_freq
+        echo 1612800000 > /sys/class/devfreq/soc:qcom,cpu0-cpu-l3-lat/max_freq
+        echo 902400000 > /sys/class/devfreq/soc:qcom,cpu4-cpu-l3-lat/min_freq
+        echo 1612800000 > /sys/class/devfreq/soc:qcom,cpu4-cpu-l3-lat/max_freq
+        ;;
+    *)
         ;;
 esac
 case "$product" in
-        "sm6150_au")
-         setprop vendor.display.lcd_density 160
-         ;;
-        *)
+    "sm6150_au")
+        setprop vendor.display.lcd_density 160
+        ;;
+    *)
         ;;
 esac
 case "$product" in
-        "sdmshrike_au")
-         setprop vendor.display.lcd_density 160
-         ;;
-        *)
+    "sdmshrike_au")
+        setprop vendor.display.lcd_density 160
+        ;;
+    *)
         ;;
 esac
 
 case "$product" in
-        "msmnile_gvmq")
-         setprop vendor.display.lcd_density 160
-         ;;
-        *)
+    "msmnile_gvmq")
+        setprop vendor.display.lcd_density 160
+        ;;
+    *)
         ;;
 esac
 # Setup display nodes & permissions
@@ -482,19 +553,18 @@ function set_perms() {
 
 # check for the type of driver FB or DRM
 fb_driver=/sys/class/graphics/fb0
-if [ -e "$fb_driver" ]
-then
+if [ -e "$fb_driver" ]; then
     # check for mdp caps
     file=/sys/class/graphics/fb0/mdp/caps
-    if [ -f "$file" ]
-    then
+    if [ -f "$file" ]; then
         setprop vendor.gralloc.disable_ubwc 1
         cat $file | while read line; do
-          case "$line" in
-                    *"ubwc"*)
+            case "$line" in
+                *"ubwc"*)
                     setprop vendor.gralloc.enable_fb_ubwc 1
                     setprop vendor.gralloc.disable_ubwc 0
-                esac
+                    ;;
+            esac
         done
     fi
 else
@@ -505,8 +575,8 @@ fi
 set_perms /sys/class/lcd_bias/secure_mode system.graphics 0660
 set_perms /sys/class/leds/wled/secure_mode system.graphics 0660
 
-boot_reason=`cat /proc/sys/kernel/boot_reason`
-reboot_reason=`getprop ro.boot.alarmboot`
+boot_reason=$(cat /proc/sys/kernel/boot_reason)
+reboot_reason=$(getprop ro.boot.alarmboot)
 if [ "$boot_reason" = "3" ] || [ "$reboot_reason" = "true" ]; then
     setprop ro.vendor.alarm_boot true
 else
@@ -515,6 +585,6 @@ fi
 
 # copy GPU frequencies to vendor property
 if [ -f /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies ]; then
-    gpu_freq=`cat /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies` 2> /dev/null
+    gpu_freq=$(cat /sys/class/kgsl/kgsl-3d0/gpu_available_frequencies) 2> /dev/null
     setprop vendor.gpu.available_frequencies "$gpu_freq"
 fi

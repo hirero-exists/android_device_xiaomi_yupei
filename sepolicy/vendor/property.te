@@ -1,14 +1,11 @@
 # Audio
 system_vendor_config_prop(vendor_audio_cloud_ctrl_mi_prop)
-
-# Aware
-vendor_restricted_prop(vendor_aware_available_prop);
+vendor_public_prop(vendor_audio_mi_prop)
 
 # Camera
 vendor_public_prop(vendor_camera_p3enable_prop)
 vendor_public_prop(vendor_camera_sensor_prop)
 vendor_public_prop(vendor_camera_xdrversion_prop)
-vendor_restricted_prop(vendor_cam_prop)
 
 # Displayfeature
 vendor_public_prop(vendor_displayfeature_prop)
@@ -21,6 +18,10 @@ vendor_public_prop(vendor_fp_prop)
 
 # Mlipay
 vendor_public_prop(vendor_payment_security_prop)
+vendor_public_prop(vendor_cpuid_prop)
+
+# PowerShare
+vendor_internal_prop(vendor_powershare_prop)
 
 # RIL
 vendor_public_prop(vendor_deviceid_prop)
@@ -32,10 +33,13 @@ vendor_public_prop(vendor_sno_prop)
 vendor_public_prop(vendor_mischeck_prop)
 vendor_public_prop(vendor_usedframebuffer_prop)
 
+# SLA
+vendor_public_prop(vendor_slad_prop)
+
 # Thermal
 vendor_public_prop(vendor_thermal_normal_prop)
 
 # Touchfeature
-vendor_public_prop(vendor_panel_info_prop)
+vendor_restricted_prop(vendor_panel_info_prop)
 vendor_restricted_prop(vendor_touch_hostprocess_prop)
 vendor_restricted_prop(vendor_touchfeature_prop)
